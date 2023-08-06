@@ -4,15 +4,14 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
-/*Klasa reprezentująca role, które mogą być przypisane do użytkownika. Rola określa zestaw uprawnień i funkcji, które są
-* przyznawane użytkownikowi w kontekście aplikacji. */
 @Entity
+//@Table(name = "ROLES")
 public class Role implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+    //@Column(unique = true)
     private String name; //nazwa roli np. "CREATOR"
 
     public Role() {

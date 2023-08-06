@@ -1,6 +1,6 @@
 package pl.kurs.shapeapiapp.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.querydsl.core.annotations.QueryEntity;
 
 import javax.persistence.*;
 
@@ -8,11 +8,12 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type",
         discriminatorType = DiscriminatorType.STRING)
 @Table(name = "shapes")
-public class Shape implements Serializable {
+@QueryEntity
+public class Shape implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -23,11 +24,11 @@ public class Shape implements Serializable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User createdBy;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
+
+
 
     public Shape() {
     }
@@ -87,4 +88,5 @@ public class Shape implements Serializable {
     public void setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
+
 }
