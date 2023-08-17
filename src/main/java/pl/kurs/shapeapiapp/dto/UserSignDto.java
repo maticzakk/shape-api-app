@@ -1,10 +1,20 @@
 package pl.kurs.shapeapiapp.dto;
 
+import pl.kurs.shapeapiapp.validation.Email;
+
+import javax.validation.constraints.NotBlank;
+
 public class UserSignDto {
+    @NotBlank
     private String firstName;
+    @NotBlank
     private String lastName;
+    @NotBlank
     private String username;
+    @NotBlank
+    @Email
     private String email;
+    @NotBlank
     private String password;
 
     public UserSignDto() {

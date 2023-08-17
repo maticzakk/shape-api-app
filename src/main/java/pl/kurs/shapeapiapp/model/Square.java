@@ -1,25 +1,21 @@
 package pl.kurs.shapeapiapp.model;
 
 
-import javax.persistence.*;
+import org.hibernate.annotations.Formula;
+
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import java.io.Serializable;
 
 @Entity
 @DiscriminatorValue("SQUARE")
-public class Square extends Shape {
+public class Square extends Shape implements Serializable {
 
     private double height;
-
+    @Formula("height * height")
     private double area;
-
+    @Formula("4 * height")
     private double perimeter;
-
-    @PrePersist
-    @PreUpdate
-    public void calculateAreaAndPerimeter() {
-        area = height * height;
-        perimeter = 4 * height;
-    }
-
 
     public Square(double height) {
         this.height = height;
@@ -51,17 +47,4 @@ public class Square extends Shape {
     public void setPerimeter(double perimeter) {
         this.perimeter = perimeter;
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        Square square = (Square) o;
-//        return Double.compare(square.height, height) == 0 && Double.compare(square.area, area) == 0 && Double.compare(square.perimeter, perimeter) == 0;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(height, area, perimeter);
-//    }
 }

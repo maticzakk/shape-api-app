@@ -7,6 +7,8 @@ import pl.kurs.shapeapiapp.dto.UserSignDto;
 import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.service.IUserService;
 
+import javax.validation.Valid;
+
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
@@ -21,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserSignDto> registerUser(@RequestBody UserSignDto userSignDto) {
+    public ResponseEntity<UserSignDto> registerUser(@RequestBody @Valid UserSignDto userSignDto) {
         User user = userService.createUser(userSignDto);
         return ResponseEntity.status(CREATED).body(modelMapper.map(user, UserSignDto.class));
 

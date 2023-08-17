@@ -1,6 +1,8 @@
 package pl.kurs.shapeapiapp.model;
-import javax.persistence.*;
 
+import lombok.Builder;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -32,11 +34,24 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Shape> shapes = new HashSet<>();
 
+    @Builder
+    public User(String username, String firstName, String lastName, String email, String password) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
+
     public User() {
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -108,12 +123,10 @@ public class User implements Serializable {
         return Objects.hash(id, username, password, roles, shapes);
     }
 
-    //metoda dodająca rolę użytkownika
     public void addRole(Role role) {
         roles.add(role);
     }
 
-    //metoda usuwająca rolę użytkownika
     public void removeRoles(Role role) {
         roles.remove(role);
     }
@@ -121,6 +134,4 @@ public class User implements Serializable {
     public void addShape(Shape shape) {
         shapes.add(shape);
     }
-
-
 }

@@ -1,5 +1,8 @@
 package pl.kurs.shapeapiapp.security.jwt;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class JwtRequestDto {
 
     private static final long serialVersionUID = 1L;

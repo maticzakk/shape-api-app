@@ -1,9 +1,10 @@
 package pl.kurs.shapeapiapp.model;
 
 import com.querydsl.core.annotations.QueryEntity;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -11,7 +12,9 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type",
         discriminatorType = DiscriminatorType.STRING)
-@Table(name = "shapes")
+@Getter
+@Setter
+@Table(name = "SHAPES")
 @QueryEntity
 public class Shape implements Serializable{
     @Id
@@ -27,8 +30,6 @@ public class Shape implements Serializable{
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
-
-
 
     public Shape() {
     }
@@ -89,4 +90,16 @@ public class Shape implements Serializable{
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    @Override
+    public String toString() {
+        return "Shape{" +
+                "id=" + id +
+                ", type='" + type + '\'' +
+                ", version=" + version +
+                ", createdBy=" + createdBy +
+                ", createdAt=" + createdAt +
+                ", lastModifiedAt=" + lastModifiedAt +
+                ", lastModifiedBy='" + lastModifiedBy + '\'' +
+                '}';
+    }
 }

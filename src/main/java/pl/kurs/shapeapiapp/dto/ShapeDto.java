@@ -1,18 +1,20 @@
 package pl.kurs.shapeapiapp.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
 public class ShapeDto {
     private Long id;
     private String type;
     private String createdBy;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
     private double perimeter;
     private double area;
-
-
 
     public Long getId() {
         return id;

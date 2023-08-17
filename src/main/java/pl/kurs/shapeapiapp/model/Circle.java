@@ -1,7 +1,6 @@
 package pl.kurs.shapeapiapp.model;
 
-
-
+import org.hibernate.annotations.Formula;
 import javax.persistence.*;
 
 @Entity
@@ -9,17 +8,10 @@ import javax.persistence.*;
 public class Circle extends Shape {
     private double radius;
 
-    //@Formula("3.14 * radius * radius")
+    @Formula("3.14 * radius * radius")
     private double area;
-    //@Formula("3.14 * radius")
+    @Formula("3.14 * 2 * radius")
     private double perimeter;
-
-    @PrePersist
-    @PreUpdate
-    public void calculateAreaAndPerimeter() {
-        area = 3.14 * radius * radius;
-        perimeter = 3.14 * radius;
-    }
 
     public Circle(double radius) {
         this.radius = radius;

@@ -20,12 +20,6 @@ public class UserPrincipal implements UserDetails {
         return user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
-//        Set<Role> roles = user.getRoles();
-//        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-//        for (Role role : roles) {
-//            authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getName()));
-//        }
-//        return authorities;
     }
 
     @Override

@@ -11,40 +11,33 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.kurs.shapeapiapp.dto.ShapeDto;
 import pl.kurs.shapeapiapp.dto.ShapeRequestDto;
-import pl.kurs.shapeapiapp.model.Shape;
-import pl.kurs.shapeapiapp.service.implementation.ShapeService;
+import pl.kurs.shapeapiapp.service.ShapeManager;
 
-
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/shapes")
 public class ShapeController {
-    private final ShapeService shapeService;
+    private final ShapeManager manager;
     private final ModelMapper modelMapper;
 
-    public ShapeController(ShapeService shapeService, ModelMapper modelMapper) {
-        this.shapeService = shapeService;
+    public ShapeController(ShapeManager manage, ModelMapper modelMapper) {
+        this.manager = manage;
         this.modelMapper = modelMapper;
     }
 
     @PreAuthorize("hasRole('ROLE_CREATOR')")
     @PostMapping
-    public ResponseEntity<ShapeDto> addShape(@RequestBody ShapeRequestDto shapeRequestDto, Principal p) {
-//        ShapeDto shape = shapeService.saveShape(shapeRequestDto, p.getName());
-//        return ResponseEntity.status(HttpStatus.CREATED).body(shape);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(modelMapper.map(shapeService.saveShape(shapeRequestDto, p.getName()), shapeService.chooseCorrectDto(shapeRequestDto.getType())));
+    public ResponseEntity<ShapeDto> addShape(@RequestBody @Valid ShapeRequestDto shapeRequestDto, Principal p) {
+        ShapeDto shapeDto = manager.saveShape(shapeRequestDto, p.getName());
+        return new ResponseEntity<>(shapeDto, HttpStatus.CREATED);
 
     }
 
     @GetMapping("/parameters")
     public ResponseEntity<Page<ShapeDto>> getAllShapes(@PageableDefault(sort = "type", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam Map<String, String> parameters) {
-        Page<Shape> shapes = shapeService.getAllShapes(pageable,  parameters);
-        //Page<ShapeDto> shapeDtos = shapes.map(shapeService::getResponse);
-        Page<ShapeDto> shapeDtos = shapes.map(x -> modelMapper.map(x, ShapeDto.class));
-        return ResponseEntity.ok(shapeDtos);
-
+        return ResponseEntity.ok(manager.getFilteredShapes(parameters, pageable).map(s -> modelMapper.map(s, ShapeDto.class)));
     }
 }

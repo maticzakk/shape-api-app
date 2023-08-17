@@ -1,26 +1,19 @@
 package pl.kurs.shapeapiapp.config;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.util.Set;
 
 @Configuration
 public class BeansConfig {
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Bean
-    public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
+    public ModelMapper getModelMapper(Set<Converter> converters) {
+        ModelMapper modelMapper = new ModelMapper();
+        converters.forEach(modelMapper::addConverter);
+        return modelMapper;
     }
 }

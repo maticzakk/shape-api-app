@@ -3,8 +3,6 @@ package pl.kurs.shapeapiapp.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -16,9 +14,6 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenUtil {
     public static final long JWT_TOKEN = 1000 * 60 * 60 * 24;
-    //private static final Logger logger = LoggerFactory.getLogger(JwtTokenUtil.class);
-
-
     @Value("${jwt.secret}")
     private String secret;
 
