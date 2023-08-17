@@ -47,7 +47,7 @@ The Shapes API application provides endpoints to manage various shapes, allowing
 
 Users can perform a complex filtered search of shapes by multiple parameters, for example:
    ```bash
-  createdBy=...&type=...&areaFrom=...&areaTo...&perimeterFrom=...&perimeterTo=...&widthFrom=...&widthTo=...&radiusFrom=...&radiusTo=...
+  createdBy=...&type=...&dateFrom=...&dateTo...&areaFrom=...&areaTo...&perimeterFrom=...&perimeterTo=...&widthFrom=...&widthTo=...&radiusFrom=...&radiusTo=...
   ```
 ## Contributing
 Feel free to customize it further according to your project's specific details.
