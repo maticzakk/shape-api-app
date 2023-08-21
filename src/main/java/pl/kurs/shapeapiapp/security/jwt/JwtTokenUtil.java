@@ -46,7 +46,6 @@ public class JwtTokenUtil {
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
-
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
@@ -54,8 +53,6 @@ public class JwtTokenUtil {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         if (isTokenExpired(token)) {
-//            logger.warn("JWT Token has expired: {}", token);
-//            System.out.println(logger);
             return false;
         }
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));

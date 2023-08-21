@@ -3,6 +3,8 @@ package pl.kurs.shapeapiapp.model;
 import com.querydsl.core.annotations.QueryEntity;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @Setter
 @Table(name = "SHAPES")
 @QueryEntity
+@EntityListeners(AuditingEntityListener.class)
 public class Shape implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,7 +28,8 @@ public class Shape implements Serializable{
     @Version
     private int version;
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "createdBy")
+    @CreatedBy
     private User createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;

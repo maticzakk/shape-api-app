@@ -1,27 +1,27 @@
 package pl.kurs.shapeapiapp.validation;
 
+import pl.kurs.shapeapiapp.service.factory.IShape;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ShapeTypeValidator implements ConstraintValidator<ShapeType, String> {
 
-    private List<String> listTypes;
+    private final List<String> shapes;
 
-    @Override
-    public void initialize(ShapeType constraintAnnotation) {
-        listTypes = List.of("square", "circle", "rectangle");
+    public ShapeTypeValidator(List<IShape> shapeFactories) {
+        this.shapes = shapeFactories.stream().map(IShape::getShape).collect(Collectors.toList());
     }
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if (!listTypes.contains(s.trim().toLowerCase())) {
-            constraintValidatorContext.disableDefaultConstraintViolation();
-            constraintValidatorContext
-                    .buildConstraintViolationWithTemplate("Not supported shape! Supported shapes are: " + String.join(", ", listTypes))
-                    .addConstraintViolation();
-            return false;
-        }
-        return true;
+        return Optional.ofNullable(s)
+                .map(String::trim)
+                .filter(x -> !x.isEmpty())
+                .map(shapes::contains)
+                .orElse(true);
     }
 }

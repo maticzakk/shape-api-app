@@ -33,30 +33,29 @@ public class RectangleFactory implements IShape {
 
     @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
-        Rectangle rectangle = createRectangle(shapeRequestDto, username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
+        Rectangle rectangle = createRectangle(shapeRequestDto, user);
         Rectangle savedRectangle = repository.save(rectangle);
-        RectangleDto rectangleDto = mapToDto(savedRectangle);
+        RectangleDto rectangleDto = mapToDto(savedRectangle, user.getUsername());
 
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("USERNAME_NOT_FOUND"));
         user.addShape(savedRectangle);
         return rectangleDto;
     }
 
-    public Rectangle createRectangle(ShapeRequestDto request, String username) {
+    public Rectangle createRectangle(ShapeRequestDto request, User username) {
         Rectangle rectangle = new Rectangle();
         rectangle.setType("RECTANGLE");
-        rectangle.setCreatedBy(userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("NIE ZNALEZIONO UZYTKOWNIKA")));
         rectangle.setHeight(request.getParameters().get(0));
         rectangle.setWidth(request.getParameters().get(1));
         rectangle.setCreatedAt(LocalDateTime.now());
         rectangle.setLastModifiedAt(LocalDateTime.now());
-        rectangle.setLastModifiedBy(username);
+        rectangle.setLastModifiedBy(username.getUsername());
         return rectangle;
     }
 
-    private RectangleDto mapToDto(Rectangle rectangle) {
+    private RectangleDto mapToDto(Rectangle rectangle, String createdByUsername) {
         RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
-        rectangleDto.setCreatedBy(rectangle.getCreatedBy().getUsername());
+        rectangleDto.setCreatedBy(createdByUsername);
         rectangleDto.setArea(calculateArea(rectangle.getHeight(), rectangle.getWidth()));
         rectangleDto.setPerimeter(calculatePerimeter(rectangle.getHeight(), rectangle.getWidth()));
         return rectangleDto;

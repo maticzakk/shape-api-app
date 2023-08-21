@@ -38,7 +38,7 @@ public class FindSquareQuery implements IFindShapesQuery {
                     .map(x -> LocalDateTime.parse(x, inputFormatter))
                     .ifPresent(dateTo -> builder.and(qSquare.createdAt.loe(dateTo)));
         } catch (DateTimeParseException e) {
-            System.out.println("Błąd " + e.getMessage());
+            e.printStackTrace();
         }
 
         return builder;

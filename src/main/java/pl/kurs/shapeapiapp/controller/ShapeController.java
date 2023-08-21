@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.controller;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,8 +24,8 @@ public class ShapeController {
     private final ShapeManager manager;
     private final ModelMapper modelMapper;
 
-    public ShapeController(ShapeManager manage, ModelMapper modelMapper) {
-        this.manager = manage;
+    public ShapeController(ShapeManager manager, ModelMapper modelMapper) {
+        this.manager = manager;
         this.modelMapper = modelMapper;
     }
 

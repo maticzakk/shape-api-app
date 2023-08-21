@@ -12,14 +12,10 @@ public class ShapeRequestDto {
     @NotEmpty
     private List<Double> parameters;
 
-    public ShapeRequestDto() {
-    }
-
     public ShapeRequestDto(String type, List<Double> parameters) {
         this.type = type;
         this.parameters = parameters;
     }
-
 
     public String getType() {
         return type;

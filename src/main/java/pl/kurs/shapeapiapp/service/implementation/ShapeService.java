@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class ShapeService  implements ShapeManager {
+public class ShapeService implements ShapeManager {
 
     private final ShapeRepository shapeRepository;
     private final List<IShape> shapes;

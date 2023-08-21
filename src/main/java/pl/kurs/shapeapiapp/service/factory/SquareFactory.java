@@ -1,12 +1,14 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.ShapeDto;
 import pl.kurs.shapeapiapp.dto.ShapeRequestDto;
 import pl.kurs.shapeapiapp.dto.SquareDto;
+import pl.kurs.shapeapiapp.exceptions.UserNotFoundException;
 import pl.kurs.shapeapiapp.model.Square;
 import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.SquareRepository;
@@ -31,14 +33,12 @@ public class SquareFactory implements IShape{
         return "SQUARE";
     }
 
-    private Square createSquare(ShapeRequestDto shapeRequestDto, String username) {
+    private Square createSquare(ShapeRequestDto shapeRequestDto, User username) {
         Square square = new Square();
         square.setType(getShape());
-        square.setCreatedBy(userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
         square.setCreatedAt(LocalDateTime.now());
         square.setLastModifiedAt(LocalDateTime.now());
-        square.setLastModifiedBy(username);
+        square.setLastModifiedBy(username.getUsername());
         square.setHeight(shapeRequestDto.getParameters().get(0));
         return square;
     }
@@ -46,20 +46,19 @@ public class SquareFactory implements IShape{
     @Override
     @Transactional
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
-        Square square = createSquare(shapeRequestDto, username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
+        Square square = createSquare(shapeRequestDto, user);
         Square savedSquare = squareRepository.save(square);
-        SquareDto squareDto = mapToDto(savedSquare);
+        SquareDto squareDto = mapToDto(savedSquare, user.getUsername());
 
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
         user.addShape(savedSquare);
 
         return squareDto;
     }
 
-    private SquareDto mapToDto(Square square) {
+    private SquareDto mapToDto(Square square, String createdByUsername) {
         SquareDto squareDto = modelMapper.map(square, SquareDto.class);
-        squareDto.setCreatedBy(square.getCreatedBy().getUsername());
+        squareDto.setCreatedBy(createdByUsername);
         squareDto.setArea(calculateArea(square.getHeight()));
         squareDto.setPerimeter(calculatePerimeter(square.getHeight()));
         return squareDto;

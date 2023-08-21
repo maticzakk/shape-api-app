@@ -41,7 +41,7 @@ public class FindRectangleQuery implements IFindShapesQuery {
                     .map(x -> LocalDateTime.parse(x, inputFormatter))
                     .ifPresent(dateTo -> builder.and(qRectangle.createdAt.loe(dateTo)));
         } catch (DateTimeParseException e) {
-            System.out.println("Błąd " + e.getMessage());
+            e.printStackTrace();
         }
 
         return builder;

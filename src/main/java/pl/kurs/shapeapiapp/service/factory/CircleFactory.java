@@ -11,7 +11,6 @@ import pl.kurs.shapeapiapp.model.Circle;
 import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.CircleRepository;
 import pl.kurs.shapeapiapp.repository.UserRepository;
-
 import java.time.LocalDateTime;
 
 @Component
@@ -35,36 +34,35 @@ public class CircleFactory implements IShape {
     @Override
     @Transactional
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
-        Circle circle = createCircle(shapeRequestDto, username);
-        Circle savedCircle = circleRepository.saveAndFlush(circle);
-        CircleDto circleDto = mapToDto(savedCircle);
-
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
+                .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
+        Circle circle = createCircle(shapeRequestDto, user);
+        Circle savedCircle = circleRepository.saveAndFlush(circle);
+        CircleDto circleDto = mapToDto(savedCircle, user.getUsername());
+
         user.addShape(savedCircle);
 
         return circleDto;
     }
 
-    private Circle createCircle(ShapeRequestDto request, String username) {
+    private Circle createCircle(ShapeRequestDto request, User username) {
         Circle circle = new Circle();
         circle.setType(getShape());
-        circle.setCreatedBy(userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
         circle.setCreatedAt(LocalDateTime.now());
         circle.setLastModifiedAt(LocalDateTime.now());
-        circle.setLastModifiedBy(username);
+        circle.setLastModifiedBy(username.getUsername());
         circle.setRadius(request.getParameters().get(0));
         return circle;
     }
 
-    private CircleDto mapToDto(Circle circle) {
+    private CircleDto mapToDto(Circle circle, String createdByUsername) {
         CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
-        circleDto.setCreatedBy(circle.getCreatedBy().getUsername());
+        circleDto.setCreatedBy(createdByUsername);
         circleDto.setArea(calculateArea(circle.getRadius()));
         circleDto.setPerimeter(calculatePerimeter(circle.getRadius()));
         return circleDto;
     }
+
     private double calculateArea(double radius) {
         return Math.PI * (Math.pow(radius, 2));
     }

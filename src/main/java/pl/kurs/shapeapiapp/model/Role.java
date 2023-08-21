@@ -13,7 +13,7 @@ public class Role implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name; //nazwa roli np. "CREATOR"
+    private String name;
 
     public Role() {
     }
