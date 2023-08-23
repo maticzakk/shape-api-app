@@ -4,14 +4,18 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import pl.kurs.shapeapiapp.dto.CircleDto;
-import pl.kurs.shapeapiapp.dto.ShapeDto;
-import pl.kurs.shapeapiapp.dto.ShapeRequestDto;
+import pl.kurs.shapeapiapp.dto.*;
+import pl.kurs.shapeapiapp.exceptions.EntityNotFoundException;
 import pl.kurs.shapeapiapp.model.Circle;
 import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.CircleRepository;
 import pl.kurs.shapeapiapp.repository.UserRepository;
+import pl.kurs.shapeapiapp.service.IChangeEventService;
+
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class CircleFactory implements IShape {
@@ -19,11 +23,13 @@ public class CircleFactory implements IShape {
     private final UserRepository userRepository;
     private final CircleRepository circleRepository;
     private final ModelMapper modelMapper;
+    private final IChangeEventService changeEventService;
 
-    public CircleFactory(UserRepository userRepository, CircleRepository circleRepository, ModelMapper modelMapper) {
+    public CircleFactory(UserRepository userRepository, CircleRepository circleRepository, ModelMapper modelMapper, IChangeEventService changeEventService) {
         this.userRepository = userRepository;
         this.circleRepository = circleRepository;
         this.modelMapper = modelMapper;
+        this.changeEventService = changeEventService;
     }
 
     @Override
@@ -45,10 +51,31 @@ public class CircleFactory implements IShape {
         return circleDto;
     }
 
+    @Transactional
+    @Override
+    public ShapeDto edit(Long id,ShapeRequestEditDto shapeRequestEditDto, String username) {
+        Circle circle = circleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
+        double oldRadius = circle.getRadius();
+        circle.setRadius(shapeRequestEditDto.getParameters().get(0));
+        circle.setLastModifiedAt(LocalDateTime.now());
+        Circle newCircle = circleRepository.save(circle);
+        Map<String, Double> parameters = new HashMap<>();
+        parameters.put("oldRadius", oldRadius);
+        parameters.put("newRadius", newCircle.getRadius());
+        changeEventService.save(id, newCircle, username, parameters);
+        return mapToDto(newCircle, username);
+    }
+
+    @Override
+    public List<ShapeChangeDto> getChanges(long id) {
+        return changeEventService.getChanges(id);
+    }
+
     private Circle createCircle(ShapeRequestDto request, User username) {
         Circle circle = new Circle();
         circle.setType(getShape());
         circle.setCreatedAt(LocalDateTime.now());
+        circle.setCreatedBy(username);
         circle.setLastModifiedAt(LocalDateTime.now());
         circle.setLastModifiedBy(username.getUsername());
         circle.setRadius(request.getParameters().get(0));
