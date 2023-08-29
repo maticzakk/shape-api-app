@@ -1,23 +1,21 @@
 package pl.kurs.shapeapiapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import pl.kurs.shapeapiapp.dto.ShapeRequestDto;
-import pl.kurs.shapeapiapp.dto.ShapeRequestEditDto;
-import pl.kurs.shapeapiapp.dto.SquareDto;
-import pl.kurs.shapeapiapp.dto.UserSignDto;
+import pl.kurs.shapeapiapp.dto.*;
 import pl.kurs.shapeapiapp.model.Shape;
 import pl.kurs.shapeapiapp.repository.ShapeRepository;
+import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.security.jwt.JwtRequestDto;
 import pl.kurs.shapeapiapp.utils.TestUtils;
 
@@ -47,8 +45,17 @@ public class ShapeControllerTest {
     @Autowired
     private ShapeRepository shapeRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @AfterEach
+    void clean() {
+        shapeRepository.deleteAll();
+        userRepository.deleteAll();
+    }
+
+
     @Test
-    @DirtiesContext
     void shouldAddCircle() throws Exception {
         // Logowanie użytkownika
         String token = loginUserAndGetToken();
@@ -77,7 +84,6 @@ public class ShapeControllerTest {
 
     }
     @Test
-    @DirtiesContext
     void shouldAddSquare() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -106,7 +112,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldAddRectangle() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -136,7 +141,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldReturnBadRequestForInvalidShapeType() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -153,7 +157,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldDenyAccessForUnauthorizedUser() throws Exception {
         ShapeRequestDto requestDto = new ShapeRequestDto("CIRCLE", Collections.singletonList(5.0));
 
@@ -165,7 +168,6 @@ public class ShapeControllerTest {
 
 
     @Test
-    @DirtiesContext
     void shouldValidateInputDataAndReturnBadRequest() throws Exception {
         String token = loginUserAndGetToken();
         ShapeRequestDto requestDto = new ShapeRequestDto("", Collections.emptyList());
@@ -178,7 +180,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesByAreaTo() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -216,7 +217,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesByType() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -253,7 +253,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesBetweenAreaTo100_0() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -297,12 +296,11 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$.content[1].area").value(25.0))
                 .andExpect(jsonPath("$.content[1].perimeter").value(20.0))
                 .andExpect(jsonPath("$.content[0].type").value("CIRCLE"))
-                .andExpect(jsonPath("$.content[0].area").value(78.5))
-                .andExpect(jsonPath("$.content[0].perimeter").value(31.4));
+                .andExpect(jsonPath("$.content[0].area").value(78.53981633974483))
+                .andExpect(jsonPath("$.content[0].perimeter").value(31.41592653589793));
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesBetweenPerimeterTo100_0() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -346,12 +344,11 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$.content[1].area").value(25.0))
                 .andExpect(jsonPath("$.content[1].perimeter").value(20.0))
                 .andExpect(jsonPath("$.content[0].type").value("CIRCLE"))
-                .andExpect(jsonPath("$.content[0].area").value(78.5))
-                .andExpect(jsonPath("$.content[0].perimeter").value(31.4));
+                .andExpect(jsonPath("$.content[0].area").value(78.53981633974483))
+                .andExpect(jsonPath("$.content[0].perimeter").value(31.41592653589793));
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesWithAreaFrom90_0() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -383,7 +380,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnFilteredShapesWithPerimeterFrom35_0() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -425,7 +421,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldMakeChangesInShape() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -466,7 +461,6 @@ public class ShapeControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldReturn404WhenShapeDoesNotExist() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -480,6 +474,50 @@ public class ShapeControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+    @Test
+    void shouldHandleOptimisticLocking() throws Exception {
+        // Logowanie użytkownika
+        String token = loginUserAndGetToken();
+
+        // Dodanie nowego prostokąta
+        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("RECTANGLE", List.of(5.0, 2.0));
+        String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
+
+        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/shapes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(addShapeRequestDtoAsString))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        ShapeDto addedShapeDto = mapper.readValue(addResult.getResponse().getContentAsString(), ShapeDto.class);
+
+        // Pobranie ID dodanego prostokąta
+        Long rectangleId = addedShapeDto.getId();
+
+        // Edycja prostokąta przez pierwszego użytkownika
+        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0, 3.0));
+        String editShapeRequestDtoAsString = mapper.writeValueAsString(editShapeRequestDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editShapeRequestDtoAsString))
+                .andExpect(status().isOk());
+
+        // Edycja prostokąta przez drugiego użytkownika (konflikt zostanie wykryty)
+        String anotherToken = loginUser2AndGetToken();
+
+        ShapeRequestEditDto editShapeRequestDtoAnotherUser = new ShapeRequestEditDto(List.of(15.0, 4.0));
+        String editShapeRequestDtoAnotherUserAsString = mapper.writeValueAsString(editShapeRequestDtoAnotherUser);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
+                .header("Authorization", "Bearer " + anotherToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editShapeRequestDtoAnotherUserAsString))
+                .andExpect(status().isConflict()); // Wykrycie konfliktu optimistic locking
+    }
+
 
     private String loginUserAndGetToken() throws Exception {
         UserSignDto userSignDto = loginDto();
@@ -495,6 +533,32 @@ public class ShapeControllerTest {
 
         MvcResult jwtRequestResponse = mockMvc.perform(post("/api/v1/authenticate")
                 .with(httpBasic("jsmith", "password123"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jwtRequestDtoAsString))
+                .andReturn();
+
+        return TestUtils.getTokenFromJson(jwtRequestResponse.getResponse().getContentAsString());
+    }
+
+    private String loginUser2AndGetToken() throws Exception {
+        UserSignDto request = new UserSignDto();
+        request.setFirstName("Andrzej");
+        request.setLastName("Nowak");
+        request.setUsername("anowak");
+        request.setEmail("anowak@example.com");
+        request.setPassword("password123");
+        String signUpRequestDtoAsString = mapper.writeValueAsString(request);
+
+        mockMvc.perform(post("/api/v1/users/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(signUpRequestDtoAsString))
+                .andExpect(status().isCreated());
+
+        JwtRequestDto jwtRequestDto = new JwtRequestDto("anowak", "password123");
+        String jwtRequestDtoAsString = mapper.writeValueAsString(jwtRequestDto);
+
+        MvcResult jwtRequestResponse = mockMvc.perform(post("/api/v1/authenticate")
+                .with(httpBasic("anowak", "password123"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jwtRequestDtoAsString))
                 .andReturn();

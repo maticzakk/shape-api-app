@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,6 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.kurs.shapeapiapp.dto.UserSignDto;
+import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.security.jwt.JwtRequestDto;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -27,8 +29,15 @@ public class JwtAuthenticationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @AfterEach
+    void clean() {
+        userRepository.deleteAll();
+    }
+
     @Test
-    @DirtiesContext
     public void shouldReturnJwtResponseDtoOnSuccessfulAuthentication() throws Exception {
         UserSignDto userSignDto = loginDto();
         String signUpRequestDtoAsString = mapper.writeValueAsString(userSignDto);

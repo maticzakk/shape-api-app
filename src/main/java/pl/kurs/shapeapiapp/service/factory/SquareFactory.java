@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -42,7 +43,12 @@ public class SquareFactory implements IShape{
         square.setCreatedBy(username);
         square.setLastModifiedAt(LocalDateTime.now());
         square.setLastModifiedBy(username.getUsername());
-        square.setHeight(shapeRequestDto.getParameters().get(0));
+
+        double height = shapeRequestDto.getParameters().get(0);
+        square.setHeight(height);
+        square.setArea(calculateArea(height));
+        square.setPerimeter(calculatePerimeter(height));
+
         return square;
     }
 
@@ -63,9 +69,11 @@ public class SquareFactory implements IShape{
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Square square = squareRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
+        if (square.getVersion() != shapeRequestEditDto.getVersion()) {
+            throw new OptimisticLockingFailureException("Shape version conflict");
+        }
         double oldHeight = square.getHeight();
         square.setHeight(shapeRequestEditDto.getParameters().get(0));
-        square.setLastModifiedAt(LocalDateTime.now());
         Square newSquare = squareRepository.save(square);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);

@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,9 @@ public class CircleFactory implements IShape {
     @Override
     public ShapeDto edit(Long id,ShapeRequestEditDto shapeRequestEditDto, String username) {
         Circle circle = circleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
+        if (circle.getVersion() != shapeRequestEditDto.getVersion()) {
+            throw new OptimisticLockingFailureException("Shape version conflict");
+        }
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());
@@ -72,13 +76,17 @@ public class CircleFactory implements IShape {
     }
 
     private Circle createCircle(ShapeRequestDto request, User username) {
+        double radius = request.getParameters().get(0);
+
         Circle circle = new Circle();
         circle.setType(getShape());
         circle.setCreatedAt(LocalDateTime.now());
         circle.setCreatedBy(username);
         circle.setLastModifiedAt(LocalDateTime.now());
         circle.setLastModifiedBy(username.getUsername());
-        circle.setRadius(request.getParameters().get(0));
+        circle.setRadius(radius);
+        circle.setArea(calculateArea(radius));
+        circle.setPerimeter(calculatePerimeter(radius));
         return circle;
     }
 

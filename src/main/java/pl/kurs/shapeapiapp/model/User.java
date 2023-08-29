@@ -23,7 +23,6 @@ public class User implements Serializable {
     private String lastName;
     @Column(unique = true)
     private String email;
-    @Column(unique = true)
     private String password;
     @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     @JoinTable(name = "user_roles",

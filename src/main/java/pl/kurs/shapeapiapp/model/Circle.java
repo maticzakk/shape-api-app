@@ -8,9 +8,7 @@ import javax.persistence.*;
 public class Circle extends Shape {
     private double radius;
 
-    @Formula("3.14 * radius * radius")
     private double area;
-    @Formula("3.14 * 2 * radius")
     private double perimeter;
 
     public Circle(double radius) {
@@ -43,5 +41,4 @@ public class Circle extends Shape {
     public void setPerimeter(double perimeter) {
         this.perimeter = perimeter;
     }
-
 }

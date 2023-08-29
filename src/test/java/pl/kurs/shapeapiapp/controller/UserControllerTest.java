@@ -1,16 +1,17 @@
 package pl.kurs.shapeapiapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.kurs.shapeapiapp.dto.UserSignDto;
+import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.security.jwt.JwtRequestDto;
 import pl.kurs.shapeapiapp.utils.TestUtils;
 import static org.hamcrest.Matchers.hasSize;
@@ -29,9 +30,16 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @AfterEach
+    void clean() {
+        userRepository.deleteAll();
+    }
+
 
     @Test
-    @DirtiesContext
     public void shouldRegisterUserSuccessfully() throws Exception {
         UserSignDto userSignDto = loginDto();
 
@@ -48,7 +56,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnBadRequestForMissingFields() throws Exception {
         UserSignDto userSignDto = new UserSignDto();
         userSignDto.setUsername("johndoe");
@@ -63,7 +70,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @DirtiesContext
     public void shouldReturnBadRequestForInvalidData() throws Exception {
         UserSignDto userSignDto = loginDto();
         userSignDto.setEmail("invalid_email");
@@ -77,7 +83,6 @@ public class UserControllerTest {
     }
 
     @Test
-    @DirtiesContext
     void shouldReturnAllUsersSuccessfully() throws Exception {
         // Przygotowanie tokenu dla 2 uzytkownikow
         String token = loginUserAndGetToken();

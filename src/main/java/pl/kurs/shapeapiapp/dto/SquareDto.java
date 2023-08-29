@@ -12,12 +12,4 @@ public class SquareDto extends ShapeDto {
     public void setHeight(double height) {
         this.height = height;
     }
-    public double getArea() {
-        return height * height;
-    }
-
-    public double getPerimeter() {
-        return 4 * height;
-    }
-
 }

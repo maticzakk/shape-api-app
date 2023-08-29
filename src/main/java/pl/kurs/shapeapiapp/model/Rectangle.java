@@ -10,9 +10,7 @@ public class Rectangle extends Shape {
     private double height;
     private double width;
 
-    @Formula("height * width")
     private double area;
-    @Formula("height + height + width + width")
     private double perimeter;
 
     public Rectangle(double height, double width) {

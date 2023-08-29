@@ -3,6 +3,7 @@ package pl.kurs.shapeapiapp.model;
 
 import org.hibernate.annotations.Formula;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.io.Serializable;
@@ -12,9 +13,7 @@ import java.io.Serializable;
 public class Square extends Shape implements Serializable {
 
     private double height;
-    @Formula("height * height")
     private double area;
-    @Formula("4 * height")
     private double perimeter;
 
     public Square(double height) {

@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -46,6 +47,7 @@ public class RectangleFactory implements IShape {
         RectangleDto rectangleDto = mapToDto(savedRectangle, user.getUsername());
 
         user.addShape(savedRectangle);
+
         return rectangleDto;
     }
 
@@ -53,11 +55,13 @@ public class RectangleFactory implements IShape {
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Rectangle rectangle = rectangleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
+        if (rectangle.getVersion() != shapeRequestEditDto.getVersion()) {
+            throw new OptimisticLockingFailureException("Shape version conflict");
+        }
         double oldHeight = rectangle.getHeight();
         double oldWidth = rectangle.getWidth();
         rectangle.setHeight(shapeRequestEditDto.getParameters().get(0));
         rectangle.setWidth(shapeRequestEditDto.getParameters().get(1));
-        rectangle.setLastModifiedAt(LocalDateTime.now());
         Rectangle newRectangle = rectangleRepository.save(rectangle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);
@@ -73,15 +77,20 @@ public class RectangleFactory implements IShape {
         return changeEventService.getChanges(id);
     }
 
-    public Rectangle createRectangle(ShapeRequestDto request, User username) {
+    private Rectangle createRectangle(ShapeRequestDto request, User username) {
+        double height = request.getParameters().get(0);
+        double width = request.getParameters().get(1);
+
         Rectangle rectangle = new Rectangle();
-        rectangle.setType("RECTANGLE");
-        rectangle.setHeight(request.getParameters().get(0));
-        rectangle.setWidth(request.getParameters().get(1));
+        rectangle.setType(getShape());
+        rectangle.setHeight(height);
+        rectangle.setWidth(width);
         rectangle.setCreatedBy(username);
         rectangle.setCreatedAt(LocalDateTime.now());
         rectangle.setLastModifiedAt(LocalDateTime.now());
         rectangle.setLastModifiedBy(username.getUsername());
+        rectangle.setArea(calculateArea(height, width));
+        rectangle.setPerimeter(calculatePerimeter(height, width));
         return rectangle;
     }
 

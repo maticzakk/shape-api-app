@@ -3,11 +3,14 @@ package pl.kurs.shapeapiapp.service.implementation;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.UserDto;
 import pl.kurs.shapeapiapp.dto.UserSignDto;
+import pl.kurs.shapeapiapp.exceptions.EmailAlreadyExistException;
+import pl.kurs.shapeapiapp.exceptions.UsernameAlreadyExistException;
 import pl.kurs.shapeapiapp.model.Role;
 import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.RoleRepository;
@@ -42,6 +45,12 @@ public class UserService implements IUserService {
     @Transactional
     @Override
     public User createUser(UserSignDto signDto) {
+        if (userRepository.existsWithLockingByUsername(signDto.getUsername())) {
+            throw new UsernameAlreadyExistException("Username already exist");
+        }
+        if (userRepository.existsWithLockingByEmail(signDto.getEmail())) {
+            throw new EmailAlreadyExistException("Email already exist");
+        }
         User user = new User();
         user.setFirstName(signDto.getFirstName());
         user.setLastName(signDto.getLastName());
@@ -53,6 +62,7 @@ public class UserService implements IUserService {
     }
 
     @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = "shapes")
     @Override
     public Page<UserDto> getAllUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
