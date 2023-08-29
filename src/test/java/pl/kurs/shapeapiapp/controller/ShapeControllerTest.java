@@ -476,10 +476,8 @@ public class ShapeControllerTest {
     }
     @Test
     void shouldHandleOptimisticLocking() throws Exception {
-        // Logowanie użytkownika
         String token = loginUserAndGetToken();
-
-        // Dodanie nowego prostokąta
+        
         ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("RECTANGLE", List.of(5.0, 2.0));
         String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
 
@@ -505,7 +503,6 @@ public class ShapeControllerTest {
                 .content(editShapeRequestDtoAsString))
                 .andExpect(status().isOk());
 
-        // Edycja prostokąta przez drugiego użytkownika (konflikt zostanie wykryty)
         String anotherToken = loginUser2AndGetToken();
 
         ShapeRequestEditDto editShapeRequestDtoAnotherUser = new ShapeRequestEditDto(List.of(15.0, 4.0));
@@ -515,7 +512,7 @@ public class ShapeControllerTest {
                 .header("Authorization", "Bearer " + anotherToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(editShapeRequestDtoAnotherUserAsString))
-                .andExpect(status().isConflict()); // Wykrycie konfliktu optimistic locking
+                .andExpect(status().isConflict());
     }
 
 
