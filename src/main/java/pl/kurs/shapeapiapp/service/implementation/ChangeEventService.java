@@ -7,7 +7,6 @@ import pl.kurs.shapeapiapp.dto.ShapeChangeDto;
 import pl.kurs.shapeapiapp.model.ChangeEvent;
 import pl.kurs.shapeapiapp.model.Shape;
 import pl.kurs.shapeapiapp.repository.ChangeEventRepository;
-import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.service.IChangeEventService;
 
 import java.util.*;
@@ -17,13 +16,10 @@ import java.util.stream.Collectors;
 public class ChangeEventService implements IChangeEventService {
 
     private final ChangeEventRepository changeEventRepository;
-    private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-
-    public ChangeEventService(ChangeEventRepository changeEventRepository, UserRepository userRepository, ModelMapper modelMapper) {
+    public ChangeEventService(ChangeEventRepository changeEventRepository, ModelMapper modelMapper) {
         this.changeEventRepository = changeEventRepository;
-        this.userRepository = userRepository;
         this.modelMapper = modelMapper;
     }
 
