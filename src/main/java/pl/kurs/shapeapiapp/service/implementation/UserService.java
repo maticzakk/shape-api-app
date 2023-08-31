@@ -3,7 +3,6 @@ package pl.kurs.shapeapiapp.service.implementation;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,8 +60,6 @@ public class UserService implements IUserService {
         return userRepository.save(user);
     }
 
-    @Transactional(readOnly = true)
-    @EntityGraph(attributePaths = "shapes")
     @Override
     public Page<UserDto> getAllUsers(Pageable pageable) {
         Page<User> users = userRepository.findAll(pageable);
@@ -72,7 +69,8 @@ public class UserService implements IUserService {
     private UserDto mapUserToDto(User user) {
         UserDto userDto = modelMapper.map(user, UserDto.class);
         userDto.setShapesCreated(user.getShapes().size());
-        userDto.setRole(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+        User userWithRoles = userRepository.findUserWithRoles(user.getId());
+        userDto.setRole(userWithRoles.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
         return userDto;
     }
 }

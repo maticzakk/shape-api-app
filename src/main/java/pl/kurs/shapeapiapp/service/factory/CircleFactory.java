@@ -85,24 +85,16 @@ public class CircleFactory implements IShape {
         circle.setLastModifiedAt(LocalDateTime.now());
         circle.setLastModifiedBy(username.getUsername());
         circle.setRadius(radius);
-        circle.setArea(calculateArea(radius));
-        circle.setPerimeter(calculatePerimeter(radius));
+        circle.setArea(circle.getPerimeter());
+        circle.setPerimeter(circle.getPerimeter());
         return circle;
     }
 
     private CircleDto mapToDto(Circle circle, String createdByUsername) {
         CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
         circleDto.setCreatedBy(createdByUsername);
-        circleDto.setArea(calculateArea(circle.getRadius()));
-        circleDto.setPerimeter(calculatePerimeter(circle.getRadius()));
+        circleDto.setArea(circle.getArea());
+        circleDto.setPerimeter(circle.getPerimeter());
         return circleDto;
-    }
-
-    private double calculateArea(double radius) {
-        return Math.PI * (Math.pow(radius, 2));
-    }
-
-    private double calculatePerimeter(double radius) {
-        return (2 * Math.PI) * radius;
     }
 }

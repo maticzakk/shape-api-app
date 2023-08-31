@@ -477,7 +477,7 @@ public class ShapeControllerTest {
     @Test
     void shouldHandleOptimisticLocking() throws Exception {
         String token = loginUserAndGetToken();
-        
+
         ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("RECTANGLE", List.of(5.0, 2.0));
         String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
 

@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type",
         discriminatorType = DiscriminatorType.STRING)
-@Getter
-@Setter
 @Table(name = "SHAPES")
 @QueryEntity
 @EntityListeners(AuditingEntityListener.class)
@@ -37,6 +35,9 @@ public class Shape implements Serializable{
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
+
+    private double area;
+    private double perimeter;
 
     public Shape() {
     }
@@ -95,6 +96,22 @@ public class Shape implements Serializable{
 
     public void setLastModifiedBy(String lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public double getArea() {
+        return area;
+    }
+
+    public void setArea(double area) {
+        this.area = area;
+    }
+
+    public double getPerimeter() {
+        return perimeter;
+    }
+
+    public void setPerimeter(double perimeter) {
+        this.perimeter = perimeter;
     }
 
     @Override

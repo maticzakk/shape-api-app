@@ -46,8 +46,8 @@ public class SquareFactory implements IShape{
 
         double height = shapeRequestDto.getParameters().get(0);
         square.setHeight(height);
-        square.setArea(calculateArea(height));
-        square.setPerimeter(calculatePerimeter(height));
+        square.setArea(square.getArea());
+        square.setPerimeter(square.getPerimeter());
 
         return square;
     }
@@ -90,15 +90,8 @@ public class SquareFactory implements IShape{
     private SquareDto mapToDto(Square square, String createdByUsername) {
         SquareDto squareDto = modelMapper.map(square, SquareDto.class);
         squareDto.setCreatedBy(createdByUsername);
-        squareDto.setArea(calculateArea(square.getHeight()));
-        squareDto.setPerimeter(calculatePerimeter(square.getHeight()));
+        squareDto.setArea(square.getArea());
+        squareDto.setPerimeter(square.getPerimeter());
         return squareDto;
-    }
-
-    private double calculateArea(double height) {
-        return height * height;
-    }
-    private double calculatePerimeter(double height) {
-        return 4 * height;
     }
 }

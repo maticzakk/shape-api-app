@@ -10,20 +10,10 @@ public class Rectangle extends Shape {
     private double height;
     private double width;
 
-    private double area;
-    private double perimeter;
 
     public Rectangle(double height, double width) {
         this.height = height;
         this.width = width;
-    }
-
-    public double calculateArea() {
-        return height * width;
-    }
-
-    public double calculatePerimeter() {
-        return height + height + width + width;
     }
 
     public Rectangle() {
@@ -45,19 +35,13 @@ public class Rectangle extends Shape {
         this.width = width;
     }
 
+    @Override
     public double getArea() {
-        return area;
+        return width * height;
     }
 
-    public void setArea(double area) {
-        this.area = area;
-    }
-
+    @Override
     public double getPerimeter() {
-        return perimeter;
-    }
-
-    public void setPerimeter(double perimeter) {
-        this.perimeter = perimeter;
+        return 2 * width + 2 * height;
     }
 }

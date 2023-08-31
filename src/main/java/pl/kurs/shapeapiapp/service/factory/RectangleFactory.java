@@ -89,23 +89,16 @@ public class RectangleFactory implements IShape {
         rectangle.setCreatedAt(LocalDateTime.now());
         rectangle.setLastModifiedAt(LocalDateTime.now());
         rectangle.setLastModifiedBy(username.getUsername());
-        rectangle.setArea(calculateArea(height, width));
-        rectangle.setPerimeter(calculatePerimeter(height, width));
+        rectangle.setArea(rectangle.getArea());
+        rectangle.setPerimeter(rectangle.getPerimeter());
         return rectangle;
     }
 
     private RectangleDto mapToDto(Rectangle rectangle, String createdByUsername) {
         RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
         rectangleDto.setCreatedBy(createdByUsername);
-        rectangleDto.setArea(calculateArea(rectangle.getHeight(), rectangle.getWidth()));
-        rectangleDto.setPerimeter(calculatePerimeter(rectangle.getHeight(), rectangle.getWidth()));
+        rectangleDto.setArea(rectangle.getArea());
+        rectangleDto.setPerimeter(rectangle.getPerimeter());
         return rectangleDto;
-    }
-
-    private double calculateArea(double height, double width) {
-        return width * height;
-    }
-    private double calculatePerimeter(double height, double width) {
-        return (2 *width) + (2 * height);
     }
 }

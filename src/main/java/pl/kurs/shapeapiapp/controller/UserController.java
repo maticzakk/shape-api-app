@@ -3,6 +3,8 @@ package pl.kurs.shapeapiapp.controller;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.kurs.shapeapiapp.dto.UserDto;
@@ -33,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<UserDto>> getAllUsers(Pageable pageable) {
+    public ResponseEntity<Page<UserDto>> getAllUsers(@PageableDefault(direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(userService.getAllUsers(pageable));
     }
 

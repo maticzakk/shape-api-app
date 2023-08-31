@@ -4,11 +4,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.ShapeChangeDto;
-import pl.kurs.shapeapiapp.exceptions.UserNotFoundException;
 import pl.kurs.shapeapiapp.model.ChangeEvent;
-import pl.kurs.shapeapiapp.model.Role;
 import pl.kurs.shapeapiapp.model.Shape;
-import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.ChangeEventRepository;
 import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.service.IChangeEventService;
@@ -37,9 +34,7 @@ public class ChangeEventService implements IChangeEventService {
         change.setShapeId(id);
         change.setLastModifiedBy(editedShape.getLastModifiedBy());
         change.setLastModifiedAt(editedShape.getLastModifiedAt());
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Username not found"));
-        Set<Role> roles = user.getRoles();
-        change.setAuthor(roles.stream().map(Role::getName).collect(Collectors.toList()));
+        change.setAuthor(editedShape.getCreatedBy().getUsername());
         change.setChangedValues(oldProperties);
         changeEventRepository.save(change);
     }

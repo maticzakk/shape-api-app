@@ -26,10 +26,7 @@ public class ChangeEvent implements Serializable {
     private LocalDateTime lastModifiedAt;
     @LastModifiedBy
     private String lastModifiedBy;
-    @ElementCollection
-    @CollectionTable(name = "change_authors", joinColumns = {@JoinColumn(name = "change_id")})
-    @Column(name = "author")
-    private List<String> author;
+    private String author;
     @ElementCollection
     @CollectionTable(name = "change_properties", joinColumns = {@JoinColumn(name = "change_id")})
     @MapKeyColumn(name = "name")

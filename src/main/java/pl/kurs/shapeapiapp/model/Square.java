@@ -13,8 +13,6 @@ import java.io.Serializable;
 public class Square extends Shape implements Serializable {
 
     private double height;
-    private double area;
-    private double perimeter;
 
     public Square(double height) {
         this.height = height;
@@ -31,19 +29,13 @@ public class Square extends Shape implements Serializable {
         this.height = height;
     }
 
+    @Override
     public double getArea() {
-        return area;
+        return Math.pow(height, 2);
     }
 
-    public void setArea(double area) {
-        this.area = area;
-    }
-
+    @Override
     public double getPerimeter() {
-        return perimeter;
-    }
-
-    public void setPerimeter(double perimeter) {
-        this.perimeter = perimeter;
+        return 4 * height;
     }
 }

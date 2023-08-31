@@ -15,6 +15,6 @@ public class ShapeChangeDto {
     @JsonFormat(pattern="dd-MM-yyyy kk:mm:ss")
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
-    private List<String> author;
+    private String author;
     private Map<String, Double> changedValues = new HashMap<>();
 }

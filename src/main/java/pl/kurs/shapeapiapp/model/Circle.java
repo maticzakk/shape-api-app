@@ -8,8 +8,6 @@ import javax.persistence.*;
 public class Circle extends Shape {
     private double radius;
 
-    private double area;
-    private double perimeter;
 
     public Circle(double radius) {
         this.radius = radius;
@@ -26,19 +24,14 @@ public class Circle extends Shape {
         this.radius = radius;
     }
 
+
+    @Override
     public double getArea() {
-        return area;
+        return Math.PI * Math.pow(radius, 2);
     }
 
-    public void setArea(double area) {
-        this.area = area;
-    }
-
+    @Override
     public double getPerimeter() {
-        return perimeter;
-    }
-
-    public void setPerimeter(double perimeter) {
-        this.perimeter = perimeter;
+        return 2 * Math.PI * radius;
     }
 }
