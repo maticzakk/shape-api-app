@@ -4,16 +4,25 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Optional;
 import java.util.Set;
 
 @Configuration
 public class BeansConfig {
 
     @Bean
-    public ModelMapper getModelMapper(Set<Converter> converters) {
+    public ModelMapper modelMapper(Set<Converter> converters) {
         ModelMapper modelMapper = new ModelMapper();
         converters.forEach(modelMapper::addConverter);
         return modelMapper;
+    }
+
+    @Bean(name = "usernameAuditorProvider")
+    public AuditorAware<String> usernameAuditorProvider() {
+        return () -> Optional.of(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 }

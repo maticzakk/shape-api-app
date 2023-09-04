@@ -69,9 +69,6 @@ public class SquareFactory implements IShape{
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Square square = squareRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
-        if (square.getVersion() != shapeRequestEditDto.getVersion()) {
-            throw new OptimisticLockingFailureException("Shape version conflict");
-        }
         double oldHeight = square.getHeight();
         square.setHeight(shapeRequestEditDto.getParameters().get(0));
         Square newSquare = squareRepository.save(square);

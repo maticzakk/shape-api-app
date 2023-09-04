@@ -8,6 +8,7 @@ public class ShapeDto {
     private Long id;
     private String type;
     private String createdBy;
+    private int version;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -80,4 +81,12 @@ public class ShapeDto {
         this.area = area;
     }
 
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 }

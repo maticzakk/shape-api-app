@@ -55,9 +55,6 @@ public class RectangleFactory implements IShape {
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Rectangle rectangle = rectangleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
-        if (rectangle.getVersion() != shapeRequestEditDto.getVersion()) {
-            throw new OptimisticLockingFailureException("Shape version conflict");
-        }
         double oldHeight = rectangle.getHeight();
         double oldWidth = rectangle.getWidth();
         rectangle.setHeight(shapeRequestEditDto.getParameters().get(0));

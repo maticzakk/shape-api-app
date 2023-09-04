@@ -27,9 +27,9 @@ public class AuthenticationService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            throw new Exception("disabled user", e);
+            throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("invalid user", e);
+            throw new Exception("INVALID_CREDENTIALS", e);
         }
         final UserDetails userDetails = userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());

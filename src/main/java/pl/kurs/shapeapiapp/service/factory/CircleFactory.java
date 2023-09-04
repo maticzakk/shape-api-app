@@ -56,9 +56,6 @@ public class CircleFactory implements IShape {
     @Override
     public ShapeDto edit(Long id,ShapeRequestEditDto shapeRequestEditDto, String username) {
         Circle circle = circleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
-        if (circle.getVersion() != shapeRequestEditDto.getVersion()) {
-            throw new OptimisticLockingFailureException("Shape version conflict");
-        }
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());

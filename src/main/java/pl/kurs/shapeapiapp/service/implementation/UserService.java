@@ -2,6 +2,7 @@ package pl.kurs.shapeapiapp.service.implementation;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.service.IUserService;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -60,17 +62,19 @@ public class UserService implements IUserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<UserDto> getAllUsers(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
-        return users.map(this::mapUserToDto);
+        Page<Long> usersId = userRepository.findIds(pageable);
+        List<User> users = userRepository.findAllWithRolesAndShapesByIds(usersId.getContent());
+
+        List<UserDto> userDtos = users.stream()
+                .map(this::mapUserToDto)
+                .collect(Collectors.toList());
+        return new PageImpl<>(userDtos, pageable, usersId.getTotalElements());
     }
 
     private UserDto mapUserToDto(User user) {
-        UserDto userDto = modelMapper.map(user, UserDto.class);
-        userDto.setShapesCreated(user.getShapes().size());
-        User userWithRoles = userRepository.findUserWithRoles(user.getId());
-        userDto.setRole(userWithRoles.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
-        return userDto;
+        return modelMapper.map(user, UserDto.class);
     }
 }
