@@ -2,9 +2,11 @@ package pl.kurs.shapeapiapp.service.implementation;
 
 import com.querydsl.core.types.Predicate;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -53,11 +55,17 @@ public class ShapeService implements ShapeManager {
         return shapeRepository.findAll(predicate, pageable);
     }
 
+
     @Transactional
     @Override
     public ShapeDto editShape(Long id, ShapeRequestEditDto editShapeDto, String username) {
         IShape shape = getShapeType(id);
-        return shape.edit(id, editShapeDto, username);
+        try {
+            return shape.edit(id, editShapeDto, username);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            // Tutaj możesz obsłużyć wyjątek, np. zwracając odpowiedni status HTTP
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Konflikt wersji encji.");
+        }
     }
 
 

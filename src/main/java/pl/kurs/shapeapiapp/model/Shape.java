@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,14 +28,18 @@ public class Shape implements Serializable{
     @Column(insertable = false, updatable = false)
     private String type;
     @Version
-    private int version;
+    private Long version;
     @ManyToOne
     @JoinColumn(name = "createdBy")
     @CreatedBy
     private User createdBy;
+    @CreatedDate
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime lastModifiedAt;
+    @LastModifiedBy
     private String lastModifiedBy;
+
 
     private double area;
     private double perimeter;
@@ -58,11 +63,11 @@ public class Shape implements Serializable{
         this.type = type;
     }
 
-    public int getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 
@@ -113,6 +118,7 @@ public class Shape implements Serializable{
     public void setPerimeter(double perimeter) {
         this.perimeter = perimeter;
     }
+
 
     @Override
     public String toString() {

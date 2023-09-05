@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Configuration
+@EnableJpaAuditing
 public class BeansConfig {
 
     @Bean
@@ -21,8 +23,8 @@ public class BeansConfig {
         return modelMapper;
     }
 
-    @Bean(name = "usernameAuditorProvider")
-    public AuditorAware<String> usernameAuditorProvider() {
-        return () -> Optional.of(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
-    }
+//    @Bean(name = "usernameAuditorProvider")
+//    public AuditorAware<String> usernameAuditorProvider() {
+//        return () -> Optional.of(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+//    }
 }

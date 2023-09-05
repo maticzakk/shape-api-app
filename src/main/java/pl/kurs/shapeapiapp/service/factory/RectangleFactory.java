@@ -59,7 +59,7 @@ public class RectangleFactory implements IShape {
         double oldWidth = rectangle.getWidth();
         rectangle.setHeight(shapeRequestEditDto.getParameters().get(0));
         rectangle.setWidth(shapeRequestEditDto.getParameters().get(1));
-        Rectangle newRectangle = rectangleRepository.save(rectangle);
+        Rectangle newRectangle = rectangleRepository.saveAndFlush(rectangle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);
         parameters.put("oldWidth", oldWidth);
@@ -83,8 +83,6 @@ public class RectangleFactory implements IShape {
         rectangle.setHeight(height);
         rectangle.setWidth(width);
         rectangle.setCreatedBy(username);
-        rectangle.setCreatedAt(LocalDateTime.now());
-        rectangle.setLastModifiedAt(LocalDateTime.now());
         rectangle.setLastModifiedBy(username.getUsername());
         rectangle.setArea(rectangle.getArea());
         rectangle.setPerimeter(rectangle.getPerimeter());

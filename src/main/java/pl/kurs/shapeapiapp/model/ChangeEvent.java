@@ -8,7 +8,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -22,9 +21,7 @@ public class ChangeEvent implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long shapeId;
-    @LastModifiedDate
     private LocalDateTime lastModifiedAt;
-    @LastModifiedBy
     private String lastModifiedBy;
     private String author;
     @ElementCollection

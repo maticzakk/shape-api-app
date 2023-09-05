@@ -13,6 +13,5 @@ public interface ShapeRepository extends JpaRepository<Shape, Long>, QuerydslPre
     @Query("SELECT s.type FROM Shape s WHERE s.id = ?1")
     Optional<String> getTypeById(long id);
 
-    @Query("SELECT s.createdBy.username FROM Shape s WHERE s.id = ?1")
-    Optional<String> getCreatedByUsernameById(long id);
+
 }

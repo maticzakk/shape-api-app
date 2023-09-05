@@ -1,7 +1,6 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -39,16 +38,12 @@ public class SquareFactory implements IShape{
     private Square createSquare(ShapeRequestDto shapeRequestDto, User username) {
         Square square = new Square();
         square.setType(getShape());
-        square.setCreatedAt(LocalDateTime.now());
         square.setCreatedBy(username);
-        square.setLastModifiedAt(LocalDateTime.now());
         square.setLastModifiedBy(username.getUsername());
-
         double height = shapeRequestDto.getParameters().get(0);
         square.setHeight(height);
         square.setArea(square.getArea());
         square.setPerimeter(square.getPerimeter());
-
         return square;
     }
 
@@ -58,25 +53,26 @@ public class SquareFactory implements IShape{
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
         Square square = createSquare(shapeRequestDto, user);
         Square savedSquare = squareRepository.save(square);
-        SquareDto squareDto = mapToDto(savedSquare, user.getUsername());
-
         user.addShape(savedSquare);
-
+        SquareDto squareDto = mapToDto(savedSquare, user.getUsername());
         return squareDto;
     }
 
-    @Transactional
+
     @Override
+    @Transactional
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Square square = squareRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
         double oldHeight = square.getHeight();
         square.setHeight(shapeRequestEditDto.getParameters().get(0));
-        Square newSquare = squareRepository.save(square);
+        square.setLastModifiedAt(LocalDateTime.now());
+        Square newSquare = squareRepository.saveAndFlush(square);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);
         parameters.put("newHeight", newSquare.getHeight());
         changeEventService.save(id, newSquare, username, parameters);
-        return mapToDto(newSquare, username);
+        SquareDto squareDto = mapToDto(newSquare, username);
+        return squareDto;
     }
 
     @Override

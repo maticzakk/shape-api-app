@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 

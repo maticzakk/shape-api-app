@@ -44,7 +44,7 @@ public class CircleFactory implements IShape {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
         Circle circle = createCircle(shapeRequestDto, user);
-        Circle savedCircle = circleRepository.saveAndFlush(circle);
+        Circle savedCircle = circleRepository.save(circle);
         CircleDto circleDto = mapToDto(savedCircle, user.getUsername());
 
         user.addShape(savedCircle);
@@ -59,7 +59,7 @@ public class CircleFactory implements IShape {
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());
-        Circle newCircle = circleRepository.save(circle);
+        Circle newCircle = circleRepository.saveAndFlush(circle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldRadius", oldRadius);
         parameters.put("newRadius", newCircle.getRadius());
@@ -74,14 +74,11 @@ public class CircleFactory implements IShape {
 
     private Circle createCircle(ShapeRequestDto request, User username) {
         double radius = request.getParameters().get(0);
-
         Circle circle = new Circle();
         circle.setType(getShape());
-        circle.setCreatedAt(LocalDateTime.now());
-        circle.setCreatedBy(username);
-        circle.setLastModifiedAt(LocalDateTime.now());
-        circle.setLastModifiedBy(username.getUsername());
         circle.setRadius(radius);
+        circle.setCreatedBy(username);
+        circle.setLastModifiedBy(username.getUsername());
         circle.setArea(circle.getPerimeter());
         circle.setPerimeter(circle.getPerimeter());
         return circle;

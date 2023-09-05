@@ -476,9 +476,11 @@ public class ShapeControllerTest {
     }
     @Test
     void shouldHandleOptimisticLocking() throws Exception {
+        // Zaloguj pierwszego użytkownika i pobierz token
         String token = loginUserAndGetToken();
 
-        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("RECTANGLE", List.of(5.0, 2.0));
+        // Dodaj prostokąt
+        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("SQUARE", List.of(5.0));
         String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
 
         MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/shapes")
@@ -490,11 +492,11 @@ public class ShapeControllerTest {
 
         ShapeDto addedShapeDto = mapper.readValue(addResult.getResponse().getContentAsString(), ShapeDto.class);
 
-        // Pobranie ID dodanego prostokąta
+        // Pobierz ID dodanego prostokąta
         Long rectangleId = addedShapeDto.getId();
 
-        // Edycja prostokąta przez pierwszego użytkownika
-        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0, 3.0));
+        // Edytuj prostokąt przez pierwszego użytkownika
+        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0));
         String editShapeRequestDtoAsString = mapper.writeValueAsString(editShapeRequestDto);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
@@ -503,16 +505,19 @@ public class ShapeControllerTest {
                 .content(editShapeRequestDtoAsString))
                 .andExpect(status().isOk());
 
+        // Zaloguj drugiego użytkownika i pobierz token
         String anotherToken = loginUser2AndGetToken();
 
-        ShapeRequestEditDto editShapeRequestDtoAnotherUser = new ShapeRequestEditDto(List.of(15.0, 4.0));
+        // Edytuj prostokąt przez drugiego użytkownika, zmieniając wersję obiektu
+        ShapeRequestEditDto editShapeRequestDtoAnotherUser = new ShapeRequestEditDto(List.of(4.0));
+        editShapeRequestDtoAnotherUser.setVersion(1); // Zmień wersję obiektu
         String editShapeRequestDtoAnotherUserAsString = mapper.writeValueAsString(editShapeRequestDtoAnotherUser);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
                 .header("Authorization", "Bearer " + anotherToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(editShapeRequestDtoAnotherUserAsString))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict()); // Oczekuj konfliktu
     }
 
 
