@@ -63,9 +63,13 @@ public class ShapeService implements ShapeManager {
         try {
             return shape.edit(id, editShapeDto, username);
         } catch (ObjectOptimisticLockingFailureException ex) {
-            // Tutaj możesz obsłużyć wyjątek, np. zwracając odpowiedni status HTTP
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Konflikt wersji encji.");
+
+            return handleOptimisticLockingFailure();
         }
+    }
+
+    private ShapeDto handleOptimisticLockingFailure() {
+        throw new ResponseStatusException(HttpStatus.CONFLICT, "Konflikt wersji encji.");
     }
 
 

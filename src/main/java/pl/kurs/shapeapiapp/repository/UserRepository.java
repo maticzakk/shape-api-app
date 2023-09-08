@@ -21,8 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsWithLockingByEmail(String email);
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     boolean existsWithLockingByUsername(String username);
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :userId")
-    User findUserWithRoles(@Param("userId") Long userId);
 
 
     @Query("SELECT u.id FROM User u")

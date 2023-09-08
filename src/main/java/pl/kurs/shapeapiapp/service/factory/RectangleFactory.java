@@ -44,7 +44,7 @@ public class RectangleFactory implements IShape {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
         Rectangle rectangle = createRectangle(shapeRequestDto, user);
         Rectangle savedRectangle = rectangleRepository.save(rectangle);
-        RectangleDto rectangleDto = mapToDto(savedRectangle, user.getUsername());
+        RectangleDto rectangleDto = mapToDto(savedRectangle);
 
         user.addShape(savedRectangle);
 
@@ -59,6 +59,7 @@ public class RectangleFactory implements IShape {
         double oldWidth = rectangle.getWidth();
         rectangle.setHeight(shapeRequestEditDto.getParameters().get(0));
         rectangle.setWidth(shapeRequestEditDto.getParameters().get(1));
+        rectangle.setLastModifiedBy(username);
         Rectangle newRectangle = rectangleRepository.saveAndFlush(rectangle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);
@@ -66,7 +67,7 @@ public class RectangleFactory implements IShape {
         parameters.put("newHeight", newRectangle.getHeight());
         parameters.put("newWidth", newRectangle.getWidth());
         changeEventService.save(id, newRectangle, username, parameters);
-        return mapToDto(newRectangle, username);
+        return mapToDto(newRectangle);
     }
 
     @Override
@@ -89,9 +90,8 @@ public class RectangleFactory implements IShape {
         return rectangle;
     }
 
-    private RectangleDto mapToDto(Rectangle rectangle, String createdByUsername) {
+    private RectangleDto mapToDto(Rectangle rectangle) {
         RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
-        rectangleDto.setCreatedBy(createdByUsername);
         rectangleDto.setArea(rectangle.getArea());
         rectangleDto.setPerimeter(rectangle.getPerimeter());
         return rectangleDto;

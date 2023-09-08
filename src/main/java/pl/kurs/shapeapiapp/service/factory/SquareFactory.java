@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -54,7 +55,7 @@ public class SquareFactory implements IShape{
         Square square = createSquare(shapeRequestDto, user);
         Square savedSquare = squareRepository.save(square);
         user.addShape(savedSquare);
-        SquareDto squareDto = mapToDto(savedSquare, user.getUsername());
+        SquareDto squareDto = mapToDto(savedSquare);
         return squareDto;
     }
 
@@ -66,13 +67,14 @@ public class SquareFactory implements IShape{
         double oldHeight = square.getHeight();
         square.setHeight(shapeRequestEditDto.getParameters().get(0));
         square.setLastModifiedAt(LocalDateTime.now());
+        square.setLastModifiedBy(username);
         Square newSquare = squareRepository.saveAndFlush(square);
+
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldHeight", oldHeight);
         parameters.put("newHeight", newSquare.getHeight());
         changeEventService.save(id, newSquare, username, parameters);
-        SquareDto squareDto = mapToDto(newSquare, username);
-        return squareDto;
+        return mapToDto(newSquare);
     }
 
     @Override
@@ -80,9 +82,8 @@ public class SquareFactory implements IShape{
         return changeEventService.getChanges(id);
     }
 
-    private SquareDto mapToDto(Square square, String createdByUsername) {
+    private SquareDto mapToDto(Square square) {
         SquareDto squareDto = modelMapper.map(square, SquareDto.class);
-        squareDto.setCreatedBy(createdByUsername);
         squareDto.setArea(square.getArea());
         squareDto.setPerimeter(square.getPerimeter());
         return squareDto;

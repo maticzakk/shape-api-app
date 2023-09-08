@@ -44,7 +44,7 @@ public class ShapeController {
         return ResponseEntity.ok(manager.getFilteredShapes(parameters, pageable).map(s -> modelMapper.map(s, ShapeDto.class)));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or @userSecurity.isResourceCreator(#shapeRequestEditDto.id)")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @userSecurity.isResourceCreator(#id)")
     @PutMapping("/{id}")
     public ResponseEntity<ShapeDto> edit(@PathVariable Long id, @RequestBody ShapeRequestEditDto shapeRequestEditDto,
                                          Principal principal) {

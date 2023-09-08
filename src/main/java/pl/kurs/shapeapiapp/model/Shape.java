@@ -28,7 +28,8 @@ public class Shape implements Serializable{
     @Column(insertable = false, updatable = false)
     private String type;
     @Version
-    private Long version;
+    private Integer version;
+
     @ManyToOne
     @JoinColumn(name = "createdBy")
     @CreatedBy
@@ -63,13 +64,6 @@ public class Shape implements Serializable{
         this.type = type;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
 
     public User getCreatedBy() {
         return createdBy;
@@ -119,6 +113,13 @@ public class Shape implements Serializable{
         this.perimeter = perimeter;
     }
 
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     @Override
     public String toString() {

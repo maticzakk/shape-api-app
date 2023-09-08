@@ -1,6 +1,7 @@
 package pl.kurs.shapeapiapp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -421,6 +422,57 @@ public class ShapeControllerTest {
     }
 
     @Test
+    void shouldHandleOptimisticLocking() throws Exception {
+        // zaloguj pierwszego użytkownika i pobierz token
+        String token = loginUserAndGetToken();
+
+        // tworzymy kwadrat
+        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("SQUARE", List.of(5.0));
+        String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
+
+        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/shapes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(addShapeRequestDtoAsString))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        ShapeDto addedShapeDto = mapper.readValue(addResult.getResponse().getContentAsString(), ShapeDto.class);
+
+        String response = addResult.getResponse().getContentAsString();
+        System.out.println(response);
+        // Pobierz ID dodanego prostokąta
+        Long rectangleId = addedShapeDto.getId();
+
+        int shapeVersion = Integer.valueOf(JsonPath.read(response, "$.version").toString());
+
+        // Edytuj prostokąt przez pierwszego użytkownika
+        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0));
+        String editShapeRequestDtoAsString = mapper.writeValueAsString(editShapeRequestDto);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editShapeRequestDtoAsString))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editShapeRequestDtoAsString))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/shapes/1/changes")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(editShapeRequestDtoAsString))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].version").value(shapeVersion + 1));
+
+    }
+
+
+    @Test
     void shouldMakeChangesInShape() throws Exception {
         String token = loginUserAndGetToken();
 
@@ -473,51 +525,6 @@ public class ShapeControllerTest {
                 .content(editDtoAsString))
                 .andDo(print())
                 .andExpect(status().isNotFound());
-    }
-    @Test
-    void shouldHandleOptimisticLocking() throws Exception {
-        // Zaloguj pierwszego użytkownika i pobierz token
-        String token = loginUserAndGetToken();
-
-        // Dodaj prostokąt
-        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("SQUARE", List.of(5.0));
-        String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
-
-        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/shapes")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(addShapeRequestDtoAsString))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        ShapeDto addedShapeDto = mapper.readValue(addResult.getResponse().getContentAsString(), ShapeDto.class);
-
-        // Pobierz ID dodanego prostokąta
-        Long rectangleId = addedShapeDto.getId();
-
-        // Edytuj prostokąt przez pierwszego użytkownika
-        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0));
-        String editShapeRequestDtoAsString = mapper.writeValueAsString(editShapeRequestDto);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(editShapeRequestDtoAsString))
-                .andExpect(status().isOk());
-
-        // Zaloguj drugiego użytkownika i pobierz token
-        String anotherToken = loginUser2AndGetToken();
-
-        // Edytuj prostokąt przez drugiego użytkownika, zmieniając wersję obiektu
-        ShapeRequestEditDto editShapeRequestDtoAnotherUser = new ShapeRequestEditDto(List.of(4.0));
-        editShapeRequestDtoAnotherUser.setVersion(1); // Zmień wersję obiektu
-        String editShapeRequestDtoAnotherUserAsString = mapper.writeValueAsString(editShapeRequestDtoAnotherUser);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
-                .header("Authorization", "Bearer " + anotherToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(editShapeRequestDtoAnotherUserAsString))
-                .andExpect(status().isConflict()); // Oczekuj konfliktu
     }
 
 

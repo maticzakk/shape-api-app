@@ -7,7 +7,6 @@ import java.util.List;
 
 public class ShapeRequestEditDto {
     private List<Double> parameters;
-    private int version;
 
     @JsonCreator
     public ShapeRequestEditDto(@JsonProperty("parameters") List<Double> parameters) {
@@ -20,13 +19,5 @@ public class ShapeRequestEditDto {
 
     public void setParameters(List<Double> parameters) {
         this.parameters = parameters;
-    }
-
-    public int getVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
     }
 }

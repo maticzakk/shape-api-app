@@ -41,12 +41,12 @@ public class CircleFactory implements IShape {
     @Override
     @Transactional
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
+        Circle circle = createCircle(shapeRequestDto, username);
+        Circle savedCircle = circleRepository.save(circle);
+        CircleDto circleDto = mapToDto(savedCircle);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
-        Circle circle = createCircle(shapeRequestDto, user);
-        Circle savedCircle = circleRepository.save(circle);
-        CircleDto circleDto = mapToDto(savedCircle, user.getUsername());
-
         user.addShape(savedCircle);
 
         return circleDto;
@@ -59,12 +59,13 @@ public class CircleFactory implements IShape {
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());
+        circle.setLastModifiedBy(username);
         Circle newCircle = circleRepository.saveAndFlush(circle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldRadius", oldRadius);
         parameters.put("newRadius", newCircle.getRadius());
         changeEventService.save(id, newCircle, username, parameters);
-        return mapToDto(newCircle, username);
+        return mapToDto(newCircle);
     }
 
     @Override
@@ -72,21 +73,21 @@ public class CircleFactory implements IShape {
         return changeEventService.getChanges(id);
     }
 
-    private Circle createCircle(ShapeRequestDto request, User username) {
+    private Circle createCircle(ShapeRequestDto request, String username) {
         double radius = request.getParameters().get(0);
         Circle circle = new Circle();
         circle.setType(getShape());
         circle.setRadius(radius);
-        circle.setCreatedBy(username);
-        circle.setLastModifiedBy(username.getUsername());
+        circle.setCreatedBy(userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
+        circle.setLastModifiedBy(username);
         circle.setArea(circle.getPerimeter());
         circle.setPerimeter(circle.getPerimeter());
         return circle;
     }
 
-    private CircleDto mapToDto(Circle circle, String createdByUsername) {
+    private CircleDto mapToDto(Circle circle) {
         CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
-        circleDto.setCreatedBy(createdByUsername);
         circleDto.setArea(circle.getArea());
         circleDto.setPerimeter(circle.getPerimeter());
         return circleDto;
