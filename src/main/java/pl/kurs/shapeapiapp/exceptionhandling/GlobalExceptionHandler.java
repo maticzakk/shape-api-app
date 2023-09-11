@@ -1,8 +1,10 @@
 package pl.kurs.shapeapiapp.exceptionhandling;
 
+import lombok.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -29,8 +31,15 @@ public class GlobalExceptionHandler {
         return errors;
     }
 
-    @ExceptionHandler(OptimisticLockingFailureException.class)
-    public ResponseEntity<String> handleOptimisticLockingFailure(OptimisticLockingFailureException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body("Shape version conflict");
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<String> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+        return new ResponseEntity(
+                new EntityAlreadyChanged(ex.getIdentifier(), "Bad version"), HttpStatus.BAD_REQUEST);
+    }
+
+    @Value
+    class EntityAlreadyChanged {
+        Object entity;
+        String message;
     }
 }

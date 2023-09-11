@@ -37,7 +37,6 @@ public class CircleFactory implements IShape {
         return "CIRCLE";
     }
 
-    @Transactional
     @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
         User user = userRepository.findByUsername(username)
@@ -49,14 +48,12 @@ public class CircleFactory implements IShape {
         return circleDto;
     }
 
-    @Transactional
     @Override
     public ShapeDto edit(Long id,ShapeRequestEditDto shapeRequestEditDto, String username) {
         Circle circle = circleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());
-        //circle.setLastModifiedBy(username);
         Circle newCircle = circleRepository.saveAndFlush(circle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldRadius", oldRadius);

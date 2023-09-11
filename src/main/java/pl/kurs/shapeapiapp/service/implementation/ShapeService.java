@@ -28,15 +28,11 @@ public class ShapeService implements ShapeManager {
     private final ShapeRepository shapeRepository;
     private final List<IShape> shapes;
     private final FindShapesQuery findShapesQuery;
-    private final ChangeEventRepository changeEventRepository;
-    private final ModelMapper modelMapper;
 
-    public ShapeService(ShapeRepository shapeRepository, List<IShape> shapes, FindShapesQuery findShapesQuery, ChangeEventRepository changeEventRepository, ModelMapper modelMapper) {
+    public ShapeService(ShapeRepository shapeRepository, List<IShape> shapes, FindShapesQuery findShapesQuery) {
         this.shapeRepository = shapeRepository;
         this.shapes = shapes;
         this.findShapesQuery = findShapesQuery;
-        this.changeEventRepository = changeEventRepository;
-        this.modelMapper = modelMapper;
     }
 
     @Override

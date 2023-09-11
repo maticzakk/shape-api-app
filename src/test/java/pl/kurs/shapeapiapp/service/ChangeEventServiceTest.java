@@ -40,11 +40,14 @@ public class ChangeEventServiceTest {
 
     @Test
     void should_save_change() {
-
         Shape editedShape = new Shape();
         editedShape.setId(1L);
         editedShape.setLastModifiedBy("user1");
         editedShape.setLastModifiedAt(LocalDateTime.now());
+
+        User createdBy = new User();
+        createdBy.setUsername("user2");
+        editedShape.setCreatedBy(createdBy);
 
         Map<String, Double> oldProperties = new HashMap<>();
         oldProperties.put("length", 10.0);
@@ -67,7 +70,7 @@ public class ChangeEventServiceTest {
         assertEquals(editedShape.getId(), savedChange.getShapeId());
         assertEquals(editedShape.getLastModifiedBy(), savedChange.getLastModifiedBy());
         assertEquals(editedShape.getLastModifiedAt(), savedChange.getLastModifiedAt());
-        assertEquals("user1", savedChange.getAuthor());
+        assertEquals("user2", savedChange.getAuthor());
         assertEquals(oldProperties, savedChange.getChangedValues());
     }
 

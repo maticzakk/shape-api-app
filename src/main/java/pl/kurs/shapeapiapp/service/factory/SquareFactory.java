@@ -47,7 +47,6 @@ public class SquareFactory implements IShape{
         return square;
     }
 
-    @Transactional
     @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
@@ -59,7 +58,6 @@ public class SquareFactory implements IShape{
     }
 
 
-    //@Transactional
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Square square = squareRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));

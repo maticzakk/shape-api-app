@@ -1,12 +1,15 @@
 package pl.kurs.shapeapiapp.service.implementation;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.ShapeChangeDto;
 import pl.kurs.shapeapiapp.model.ChangeEvent;
 import pl.kurs.shapeapiapp.model.Shape;
+import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.ChangeEventRepository;
+import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.service.IChangeEventService;
 
 import java.util.*;
@@ -18,9 +21,12 @@ public class ChangeEventService implements IChangeEventService {
     private final ChangeEventRepository changeEventRepository;
     private final ModelMapper modelMapper;
 
-    public ChangeEventService(ChangeEventRepository changeEventRepository, ModelMapper modelMapper) {
+    private final UserRepository userRepository;
+
+    public ChangeEventService(ChangeEventRepository changeEventRepository, ModelMapper modelMapper, UserRepository userRepository) {
         this.changeEventRepository = changeEventRepository;
         this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
     }
 
     @Transactional

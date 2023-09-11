@@ -35,7 +35,6 @@ public class RectangleFactory implements IShape {
         return "RECTANGLE";
     }
 
-    @Transactional
     @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
@@ -47,7 +46,6 @@ public class RectangleFactory implements IShape {
 
         return rectangleDto;
     }
-    @Transactional
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Rectangle rectangle = rectangleRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));

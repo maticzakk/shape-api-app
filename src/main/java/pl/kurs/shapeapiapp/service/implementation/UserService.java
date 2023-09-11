@@ -59,7 +59,7 @@ public class UserService implements IUserService{
         user.setEmail(signDto.getEmail());
         user.setPassword(passwordEncoder.encode(signDto.getPassword()));
         user.addRole(roleRepository.findByName("CREATOR"));
-        return userRepository.save(user);
+        return userRepository.saveAndFlush(user);
     }
 
     @Transactional(readOnly = true)

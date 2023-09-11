@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ChangeEventRepository extends JpaRepository<ChangeEvent, Long> {
     List<ChangeEvent> findAllByShapeId(Long shapeId);
+
 }
