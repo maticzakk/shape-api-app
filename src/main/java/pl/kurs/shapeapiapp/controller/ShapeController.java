@@ -54,7 +54,7 @@ public class ShapeController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or @userSecurity.isResourceCreator(#id)")
     @GetMapping("/{id}/changes")
-    public ResponseEntity<List<ShapeChangeDto>> getChanges(@PathVariable long id) {
+    public ResponseEntity<List<ShapeChangeDto>> getChanges(@PathVariable Long id) {
         List<ShapeChangeDto> shapeChanges = manager.getChanges(id);
         return ResponseEntity.ok(shapeChanges);
     }

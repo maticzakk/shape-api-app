@@ -1,5 +1,6 @@
 package pl.kurs.shapeapiapp.security;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import pl.kurs.shapeapiapp.repository.ShapeRepository;
 
@@ -10,6 +11,11 @@ public class UserSecurity {
 
     public UserSecurity(ShapeRepository shapeRepository) {
         this.shapeRepository = shapeRepository;
+    }
+
+    public boolean isResourceCreator(Long shapeId) {
+        return shapeRepository.getCreatedByUsernameById(shapeId).map(username -> SecurityContextHolder.getContext()
+                .getAuthentication().getName().equalsIgnoreCase(username)).orElse(false);
     }
 }
 

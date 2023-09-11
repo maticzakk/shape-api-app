@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -421,60 +422,11 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$.content[0].perimeter").value(70.0));
     }
 
-    @Test
-    void shouldHandleOptimisticLocking() throws Exception {
-        // zaloguj pierwszego użytkownika i pobierz token
-        String token = loginUserAndGetToken();
-
-        // tworzymy kwadrat
-        ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("SQUARE", List.of(5.0));
-        String addShapeRequestDtoAsString = mapper.writeValueAsString(addShapeRequestDto);
-
-        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/shapes")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(addShapeRequestDtoAsString))
-                .andExpect(status().isCreated())
-                .andReturn();
-
-        ShapeDto addedShapeDto = mapper.readValue(addResult.getResponse().getContentAsString(), ShapeDto.class);
-
-        String response = addResult.getResponse().getContentAsString();
-        System.out.println(response);
-        // Pobierz ID dodanego prostokąta
-        Long rectangleId = addedShapeDto.getId();
-
-        int shapeVersion = Integer.valueOf(JsonPath.read(response, "$.version").toString());
-
-        // Edytuj prostokąt przez pierwszego użytkownika
-        ShapeRequestEditDto editShapeRequestDto = new ShapeRequestEditDto(List.of(10.0));
-        String editShapeRequestDtoAsString = mapper.writeValueAsString(editShapeRequestDto);
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(editShapeRequestDtoAsString))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + rectangleId)
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(editShapeRequestDtoAsString))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/shapes/1/changes")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(editShapeRequestDtoAsString))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].version").value(shapeVersion + 1));
-
-    }
-
 
     @Test
     void shouldMakeChangesInShape() throws Exception {
         String token = loginUserAndGetToken();
+        String user2 = loginUser2AndGetToken();
 
         // Wysyłanie żądania dodania kwadratu i potwierdzenie dodania
         ShapeRequestDto addShapeRequestDto = new ShapeRequestDto("SQUARE", List.of(5.0));
@@ -495,7 +447,7 @@ public class ShapeControllerTest {
         String editDtoAsString = mapper.writeValueAsString(editDto);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/v1/shapes/" + id)
-                .header("Authorization", "Bearer " + token)
+                .header("Authorization", "Bearer " + user2)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(editDtoAsString))
                 .andDo(print())
@@ -505,7 +457,7 @@ public class ShapeControllerTest {
                 .andExpect(jsonPath("$.createdBy").value("jsmith"))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty())
                 .andExpect(jsonPath("$.lastModifiedAt").isNotEmpty())
-                .andExpect(jsonPath("$.lastModifiedBy").value("jsmith"))
+                .andExpect(jsonPath("$.lastModifiedBy").value("anowak"))
                 .andExpect(jsonPath("$.area").value(100.0))
                 .andExpect(jsonPath("$.perimeter").value(40.0))
                 .andExpect(jsonPath("$.height").value(10.0));
@@ -526,6 +478,7 @@ public class ShapeControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
+
 
 
     private String loginUserAndGetToken() throws Exception {

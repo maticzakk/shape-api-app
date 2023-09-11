@@ -13,6 +13,7 @@ public class ShapeRequestEditDto {
         this.parameters = parameters;
     }
 
+
     public List<Double> getParameters() {
         return parameters;
     }

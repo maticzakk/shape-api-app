@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class UserService implements IUserService {
+public class UserService implements IUserService{
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -73,6 +73,7 @@ public class UserService implements IUserService {
                 .collect(Collectors.toList());
         return new PageImpl<>(userDtos, pageable, usersId.getTotalElements());
     }
+
 
     private UserDto mapUserToDto(User user) {
         return modelMapper.map(user, UserDto.class);

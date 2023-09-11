@@ -23,6 +23,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsWithLockingByUsername(String username);
 
 
+
+
     @Query("SELECT u.id FROM User u")
     Page<Long> findIds(Pageable pageable);
 

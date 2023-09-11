@@ -1,7 +1,6 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -48,20 +47,20 @@ public class SquareFactory implements IShape{
         return square;
     }
 
-    @Override
     @Transactional
+    @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
         Square square = createSquare(shapeRequestDto, user);
-        Square savedSquare = squareRepository.save(square);
+        Square savedSquare = squareRepository.saveAndFlush(square);
         user.addShape(savedSquare);
         SquareDto squareDto = mapToDto(savedSquare);
         return squareDto;
     }
 
 
+    //@Transactional
     @Override
-    @Transactional
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
         Square square = squareRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Shape not found"));
         double oldHeight = square.getHeight();
@@ -84,6 +83,7 @@ public class SquareFactory implements IShape{
 
     private SquareDto mapToDto(Square square) {
         SquareDto squareDto = modelMapper.map(square, SquareDto.class);
+        squareDto.setCreatedBy(square.getCreatedBy().getUsername());
         squareDto.setArea(square.getArea());
         squareDto.setPerimeter(square.getPerimeter());
         return squareDto;

@@ -1,7 +1,6 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.shapeapiapp.dto.*;
@@ -12,8 +11,6 @@ import pl.kurs.shapeapiapp.model.User;
 import pl.kurs.shapeapiapp.repository.RectangleRepository;
 import pl.kurs.shapeapiapp.repository.UserRepository;
 import pl.kurs.shapeapiapp.service.IChangeEventService;
-
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,14 +40,13 @@ public class RectangleFactory implements IShape {
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Not found user"));
         Rectangle rectangle = createRectangle(shapeRequestDto, user);
-        Rectangle savedRectangle = rectangleRepository.save(rectangle);
+        Rectangle savedRectangle = rectangleRepository.saveAndFlush(rectangle);
         RectangleDto rectangleDto = mapToDto(savedRectangle);
 
         user.addShape(savedRectangle);
 
         return rectangleDto;
     }
-
     @Transactional
     @Override
     public ShapeDto edit(Long id, ShapeRequestEditDto shapeRequestEditDto, String username) {
@@ -92,6 +88,7 @@ public class RectangleFactory implements IShape {
 
     private RectangleDto mapToDto(Rectangle rectangle) {
         RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
+        rectangleDto.setCreatedBy(rectangle.getCreatedBy().getUsername());
         rectangleDto.setArea(rectangle.getArea());
         rectangleDto.setPerimeter(rectangle.getPerimeter());
         return rectangleDto;

@@ -1,6 +1,5 @@
 package pl.kurs.shapeapiapp.model;
 
-import org.hibernate.annotations.Formula;
 import javax.persistence.*;
 
 @Entity

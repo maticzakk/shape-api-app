@@ -5,7 +5,6 @@ import lombok.Builder;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 
@@ -108,18 +107,6 @@ public class User implements Serializable {
         this.shapes = shapes;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles) && Objects.equals(shapes, user.shapes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, password, roles, shapes);
-    }
 
     public void addRole(Role role) {
         roles.add(role);

@@ -2,11 +2,9 @@ package pl.kurs.shapeapiapp.service.implementation;
 
 import com.querydsl.core.types.Predicate;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,14 +39,13 @@ public class ShapeService implements ShapeManager {
         this.modelMapper = modelMapper;
     }
 
-    @Transactional
     @Override
+    @Transactional
     public ShapeDto saveShape(ShapeRequestDto shapeRequestDto, String username) {
         IShape shape = getShapeType(shapeRequestDto.getType());
         return shape.save(shapeRequestDto, username);
     }
 
-    @Transactional
     @Override
     public Page<Shape> getFilteredShapes(Map<String, String> parameters, Pageable pageable) {
         Predicate predicate = findShapesQuery.toPredicate(parameters);
@@ -56,24 +53,15 @@ public class ShapeService implements ShapeManager {
     }
 
 
-    @Transactional
     @Override
+    @Transactional
     public ShapeDto editShape(Long id, ShapeRequestEditDto editShapeDto, String username) {
         IShape shape = getShapeType(id);
-        try {
-            return shape.edit(id, editShapeDto, username);
-        } catch (ObjectOptimisticLockingFailureException ex) {
-
-            return handleOptimisticLockingFailure();
-        }
-    }
-
-    private ShapeDto handleOptimisticLockingFailure() {
-        throw new ResponseStatusException(HttpStatus.CONFLICT, "Konflikt wersji encji.");
+        return shape.edit(id, editShapeDto, username);
     }
 
 
-    @Transactional
+
     @Override
     public List<ShapeChangeDto> getChanges(Long id) {
         IShape shape = getShapeType(id);

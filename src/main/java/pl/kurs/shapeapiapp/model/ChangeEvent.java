@@ -1,8 +1,6 @@
 package pl.kurs.shapeapiapp.model;
 
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.io.Serializable;

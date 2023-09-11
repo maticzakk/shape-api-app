@@ -1,7 +1,6 @@
 package pl.kurs.shapeapiapp.service.factory;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +37,15 @@ public class CircleFactory implements IShape {
         return "CIRCLE";
     }
 
-    @Override
     @Transactional
+    @Override
     public ShapeDto save(ShapeRequestDto shapeRequestDto, String username) {
-        Circle circle = createCircle(shapeRequestDto, username);
-        Circle savedCircle = circleRepository.save(circle);
-        CircleDto circleDto = mapToDto(savedCircle);
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Not found user"));
+        Circle circle = createCircle(shapeRequestDto, user);
+        Circle savedCircle = circleRepository.save(circle);
         user.addShape(savedCircle);
-
+        CircleDto circleDto = mapToDto(savedCircle);
         return circleDto;
     }
 
@@ -59,7 +56,7 @@ public class CircleFactory implements IShape {
         double oldRadius = circle.getRadius();
         circle.setRadius(shapeRequestEditDto.getParameters().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());
-        circle.setLastModifiedBy(username);
+        //circle.setLastModifiedBy(username);
         Circle newCircle = circleRepository.saveAndFlush(circle);
         Map<String, Double> parameters = new HashMap<>();
         parameters.put("oldRadius", oldRadius);
@@ -73,21 +70,21 @@ public class CircleFactory implements IShape {
         return changeEventService.getChanges(id);
     }
 
-    private Circle createCircle(ShapeRequestDto request, String username) {
-        double radius = request.getParameters().get(0);
+    private Circle createCircle(ShapeRequestDto request, User username) {
         Circle circle = new Circle();
         circle.setType(getShape());
+        double radius = request.getParameters().get(0);
         circle.setRadius(radius);
-        circle.setCreatedBy(userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
-        circle.setLastModifiedBy(username);
-        circle.setArea(circle.getPerimeter());
+        circle.setCreatedBy(username);
+        circle.setLastModifiedBy(username.getUsername());
+        circle.setArea(circle.getArea());
         circle.setPerimeter(circle.getPerimeter());
         return circle;
     }
 
     private CircleDto mapToDto(Circle circle) {
         CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
+        circleDto.setCreatedBy(circle.getCreatedBy().getUsername());
         circleDto.setArea(circle.getArea());
         circleDto.setPerimeter(circle.getPerimeter());
         return circleDto;

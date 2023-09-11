@@ -30,7 +30,7 @@ public class ChangeEventService implements IChangeEventService {
         change.setShapeId(id);
         change.setLastModifiedBy(editedShape.getLastModifiedBy());
         change.setLastModifiedAt(editedShape.getLastModifiedAt());
-        change.setAuthor(editedShape.getLastModifiedBy());
+        change.setAuthor(editedShape.getCreatedBy().getUsername());
         change.setChangedValues(oldProperties);
         changeEventRepository.saveAndFlush(change);
     }
